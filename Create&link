@@ -1,0 +1,47 @@
+from jira import JIRA
+# параметры подключения к jira
+j_options = {'server': 'https://jira.ozon.ru', 'proxies': 'proxy_dict'}
+jira = JIRA(options=j_options, basic_auth=('work_place_bot', 'work_place_bot'))
+# получаем список всех заявок по фильтру из JIRA
+jql = 'resolved >= startOfday() AND resolved <= endOfday() AND assignee = evgdmitriev'
+jira_search = jira.search_issues(jql, fields ='key')
+# Поля для нополнения тикета       
+ticket1 = {"project":{"key":"SD911"},
+         "summary":"Работа в выходные",
+         "customfield_24503":{"value":"P3"},
+         "customfield_12700":"Массовое изменение в Логистике",
+         "customfield_17032":{"name":"lssup_wh_team"},
+         "customfield_24502":{"value":"Один сотрудник/клиент/продавец/<100 постингов"},
+         "issuetype":{"name":"Incident"},
+         "description":"Работа в выходные",
+         "assignee":{
+         "name":"evgdmitriev",
+         "key":"evgdmitriev",
+         "emailAddress":"evgdmitriev@ozon.ru"},
+         "labels":['ls_support_weekend']
+         }
+# Создание тикета
+t1 = jira.create_issue(fields=ticket1)
+
+ticket2 = {"project":{"key":"SD911"},
+         "summary":"Работа в выходные-2",
+         "customfield_24503":{"value":"P3"},
+         "customfield_12700":"Массовое изменение в Логистике",
+         "customfield_17032":{"name":"lssup_wh_team"},
+         "customfield_24502":{"value":"Один сотрудник/клиент/продавец/<100 постингов"},
+         "issuetype":{"name":"Incident"},
+         "description":"Работа в выходные",
+         "assignee":{
+         "name":"evgdmitriev",
+         "key":"evgdmitriev",
+         "emailAddress":"evgdmitriev@ozon.ru"},
+         "labels":['ls_support_weekend']
+         }
+
+t2 = jira.create_issue(fields=ticket2)
+# Линкуем созданые тикеты между собой
+jira.create_issue_link('mentions',t1, t2)  
+# Линкуем все обработанные тикеты к t1
+for issue in jira_search:   
+    jira.create_issue_link('mentions',t1, issue)   
+                              
